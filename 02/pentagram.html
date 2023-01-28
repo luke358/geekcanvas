@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <canvas width="500" height="500"></canvas>
+  <script>
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'red'
+    ctx.beginPath()
+    const horn = 5; // 画5个角
+    const angle = 360 / horn; // 五个角的度数
+
+    // 两个圆的半径
+    const R = 100;
+    const r = 50;
+
+    // 坐标
+    const x = 250;
+    const y = 250;
+
+    for (let i = 0; i < horn; i++) {
+      // 角度转弧度：角度/180*Math.PI
+      // 外圆顶点坐标
+      ctx.lineTo(Math.cos((18 + i * angle) / 180 * Math.PI) * R + x, -Math.sin((18 + i * angle) / 180 * Math.PI) * R + y);
+      // 內圆顶点坐标
+      ctx.lineTo(Math.cos((54 + i * angle) / 180 * Math.PI) * r + x, -Math.sin((54 + i * angle) / 180 * Math.PI) * r + y);
+    }
+    // closePath：关闭路径，将路径的终点与起点相连
+    ctx.closePath();
+
+    ctx.fill()
+  </script>
+</body>
+
+</html>
