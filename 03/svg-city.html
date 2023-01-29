@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/d3-hierarchy@3"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <svg width="1600" height="1600"></svg>
+  <script>
+    const svgroot = document.querySelector('svg')
+    const dataSource = 'https://s5.ssl.qhres2.com/static/b0695e2dd30daa64.json';
+    (async function () {
+      const data = await (await fetch(dataSource)).json();
+      const regions = d3.hierarchy(data).sum(d => 1).sort((a, b) => b.value - a.value);
+      const pack = d3.pack().size([1600, 1600]).padding(3);
+      const root = pack(regions);
+      draw(svgroot, root)
+    }());
+
+    function draw(parent, node, { fillStyle = 'rgba(0, 0, 0, 0.2)', textColor = 'white' } = {}) {
+      const { x, y, r } = node
+      const children = node.children
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+      circle.setAttribute('cx', x)
+      circle.setAttribute('cy', y)
+      circle.setAttribute('r', r)
+      circle.setAttribute('fill', fillStyle)
+      parent.appendChild(circle)
+      if (children) {
+        const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        for (let i = 0; i < children.length; i++) {
+          draw(group, children[i], { fillStyle, textColor });
+        }
+        parent.appendChild(group);
+      } else {
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('fill', textColor);
+        text.setAttribute('font-family', 'Arial');
+        text.setAttribute('font-size', '1.5rem');
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('x', x);
+        text.setAttribute('y', y);
+        const name = node.data.name;
+        text.textContent = name;
+        parent.appendChild(text);
+      }
+    }
+  </script>
+</body>
+
+</html>
