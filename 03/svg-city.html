@@ -56,6 +56,18 @@
         parent.appendChild(text);
       }
     }
+
+    let activeTarget = null;
+    svgroot.addEventListener('mousemove', (evt) => {
+      let target = evt.target;
+      if (target.nodeName === 'text')
+        target = target.parentNode;
+      if (activeTarget !== target) {
+        if (activeTarget) activeTarget.setAttribute('fill', 'rgba(0, 0, 0, 0.2)');
+      }
+      target.setAttribute('fill', 'rgba(0, 128, 0, 0.1)');
+      activeTarget = target;
+    });
   </script>
 </body>
 
