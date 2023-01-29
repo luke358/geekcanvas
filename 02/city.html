@@ -7,27 +7,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <script src="https://cdn.jsdelivr.net/npm/d3-hierarchy@3"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
 </head>
 
 <body>
   <canvas width="1600" height="1600"></canvas>
   <script>
+    // const canvas = document.querySelector('canvas');
+    // const context = canvas.getContext('2d');
+    // const dataSource = 'https://s5.ssl.qhres2.com/static/b0695e2dd30daa64.json';
+    // (async function () {
+    //   const data = await (await fetch(dataSource)).json();
+    //   const regions = d3.hierarchy(data).sum(d => 1).sort((a, b) => b.value - a.value);
+    //   const pack = d3.pack().size([1600, 1600]).padding(3);
+    //   const root = pack(regions);
+    //   draw(context, root)
+    // }());
+
+    // const TAU = 2 * Math.PI;
+    // function draw(ctx, node, { fillStyle = 'rgba(0,0,0,0.2)', textColor = 'white' } = {}) {
+    //   const children = node.children
+    //   const { x, y, r } = node
+    //   ctx.fillStyle = fillStyle
+    //   ctx.beginPath()
+    //   ctx.arc(x, y, r, 0, TAU)
+    //   ctx.fill();
+    //   if (children) {
+    //     for (let i = 0; i < children.length; i++) {
+    //       draw(ctx, children[i])
+    //     }
+    //   } else {
+    //     const name = node.data.name; 
+    //     ctx.fillStyle = textColor;
+    //     ctx.font = '1.5rem Arial';
+    //     ctx.textAlign = 'center';
+    //     ctx.fillText(name, x, y);
+    //   }
+    // }
+
     const canvas = document.querySelector('canvas');
     const context = canvas.getContext('2d');
     const dataSource = 'https://s5.ssl.qhres2.com/static/b0695e2dd30daa64.json';
+    let root = null;
     (async function () {
       const data = await (await fetch(dataSource)).json();
       const regions = d3.hierarchy(data).sum(d => 1).sort((a, b) => b.value - a.value);
       const pack = d3.pack().size([1600, 1600]).padding(3);
-      const root = pack(regions);
+      root = pack(regions);
       draw(context, root)
+      isFirst = false
     }());
 
+    let active = null
+    let arcArr = []
+    let isFirst = true
+    function mouseMove(e) {
+      if (!root) return
+      // const { pageX, pageY } = e;
+      const clickX = e.pageX - canvas.offsetLeft;
+      const clickY = e.pageY - canvas.offsetTop;
+      let flag = false
+      for (let i = 0; i < arcArr.length; i++) {
+        let distance = Math.sqrt(Math.pow(clickX - arcArr[i][0], 2) + Math.pow(clickY - arcArr[i][1], 2))
+        if (distance <= arcArr[i][2]) {
+          flag = true
+          active = arcArr[i];
+          //停止搜索
+          break;
+        }
+      }
+      if (!flag) active = null
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      draw(context, root)
+    }
+    window.addEventListener('mousemove', mouseMove)
     const TAU = 2 * Math.PI;
     function draw(ctx, node, { fillStyle = 'rgba(0,0,0,0.2)', textColor = 'white' } = {}) {
-      const children = node.children
-      const { x, y, r } = node
+      const children = node.children;
+      const { x, y, r } = node;
       ctx.fillStyle = fillStyle
+      if(active && active.toString() === [x,y,r].toString()) {
+        ctx.fillStyle = 'red'
+      }
       ctx.beginPath()
       ctx.arc(x, y, r, 0, TAU)
       ctx.fill();
@@ -36,16 +102,17 @@
           draw(ctx, children[i])
         }
       } else {
-        const name = node.data.name; 
+        if (isFirst) {
+          arcArr.push([x, y, r])
+        }
+        const name = node.data.name;
         ctx.fillStyle = textColor;
         ctx.font = '1.5rem Arial';
         ctx.textAlign = 'center';
         ctx.fillText(name, x, y);
-        
       }
     }
-
-
+    // draw(context, root)
 
   </script>
 </body>
