@@ -64,6 +64,8 @@
     }());
 
     let active = null
+    let preActive = null // 减少渲染
+
     let arcArr = []
     let isFirst = true
     function mouseMove(e) {
@@ -81,9 +83,16 @@
           break;
         }
       }
-      if (!flag) active = null
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      draw(context, root)
+      if (!flag) {
+        preActive = active
+        active = null
+      }
+      if (active || preActive) {
+        preActive = null
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        draw(context, root)
+        console.log('render');
+      }
     }
     window.addEventListener('mousemove', mouseMove)
     const TAU = 2 * Math.PI;
@@ -91,7 +100,7 @@
       const children = node.children;
       const { x, y, r } = node;
       ctx.fillStyle = fillStyle
-      if(active && active.toString() === [x,y,r].toString()) {
+      if (active && active.toString() === [x, y, r].toString()) {
         ctx.fillStyle = 'red'
       }
       ctx.beginPath()
