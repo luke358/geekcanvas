@@ -80,7 +80,7 @@
           flag = true
           active = arcArr[i];
           //停止搜索
-          break;
+          // break;
         }
       }
       if (!flag) {
@@ -106,14 +106,14 @@
       ctx.beginPath()
       ctx.arc(x, y, r, 0, TAU)
       ctx.fill();
+      if (isFirst) {
+          arcArr.push([x, y, r])
+        }
       if (children) {
         for (let i = 0; i < children.length; i++) {
           draw(ctx, children[i])
         }
       } else {
-        if (isFirst) {
-          arcArr.push([x, y, r])
-        }
         const name = node.data.name;
         ctx.fillStyle = textColor;
         ctx.font = '1.5rem Arial';
